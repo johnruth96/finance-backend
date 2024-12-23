@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "finance-backend"
+version = "0.1.0"
+description = ""
+authors = [""]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+django = "^5.1.4"
+django-cors-headers = "^4.6.0"
+django-colorfield = "^0.11.0"
+djangorestframework = "^3.15.2"
+python-dateutil = "^2.9.0.post0"
+mozilla-django-oidc = "^4.0.1"
+
+
+[tool.poetry.group.prod.dependencies]
+gunicorn = "^23.0.0"
+psycopg = "^3.2.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: "postgres:17.2-alpine3.20"
+    env_file:
+      - .env
+    restart: unless-stopped
+    volumes_from:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8200:8000"
+
+volumes:
+  pgdata:
