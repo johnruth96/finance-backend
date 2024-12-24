@@ -1,27 +1,17 @@
-FROM python:3.13-buster as builder
+FROM python:3.13-bullseye
 
 RUN pip install poetry==1.8.5
-
-ENV POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_VIRTUALENVS_CREATE=1 \
-    POETRY_CACHE_DIR=/tmp/poetry_cache
 
 WORKDIR /app
 
 COPY pyproject.toml poetry.lock ./
 
-RUN --mount=type=cache,target=$POETRY_CACHE_DIR poetry install --with prod --no-root
+RUN poetry export --with=prod -o requirements.txt
 
-FROM python:3.13-slim-buster as runtime
+RUN pip install -r requirements.txt
 
-ENV VIRTUAL_ENV=/app/.venv \
-    PATH="/app/.venv/bin:$PATH"
-
-COPY --from=builder ${VIRTUAL_ENV} ${VIRTUAL_ENV}
-
-COPY . ./app
+COPY . .
 
 EXPOSE 8000
 
-ENTRYPOINT ["gunicorn", "backend.wsgi"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "backend.wsgi"]
