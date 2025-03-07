@@ -3,6 +3,7 @@ from datetime import datetime, date
 
 from colorfield.fields import ColorField
 from dateutil.relativedelta import relativedelta
+from django.contrib.auth.models import User
 from django.db import models
 
 CATEGORY_COLOR_FACTOR = 1.1
@@ -124,18 +125,32 @@ class Record(models.Model):
         return self.date < other.date or (self.date == other.date and self.subject < other.subject)
 
 
-# TODO: Add user
 class Contract(models.Model):
+    # TODO: Implement field
+    #user = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
+
     name = models.CharField(max_length=255)
+    #party = models.TextField(verbose_name="Vertragspartner")
+
+    # TODO: Deprecate, make derived
     is_active = models.BooleanField(default=True)
 
     # Contract information
-    date_start = models.DateField(verbose_name="Vertragsstart")
+    date_start = models.DateField(verbose_name="Vertragsbeginn")
+    #date_end = models.DateField(verbose_name="Vertragsende", null=True)
+
+    # TODO: Make duration fields
+    #  How to model renewal logic:
+    #   1. Insurance type: "Cancel X months before date Y, then contract renews about Z months."
+    #   2. Apple Abo type: "Cancel 1 day before date Y, then contract renewas about Z months."
+    #   3. Vodafone type: "Minimum duration X months. Cancel 1 day before end, then contract renews about Z months."
+    #   4. Miete type: "Contract ends X months afters cancellation to date Y."
     cancelation_period = models.PositiveIntegerField(verbose_name="Kündigungsfrist (in Monaten)", null=True, blank=True)
     minimum_duration = models.PositiveIntegerField(verbose_name="Mindestlaufzeit (in Monaten)", null=True, blank=True)
     renewal_duration = models.PositiveIntegerField(verbose_name="Verlängerung (in Monaten)", null=True, blank=True)
 
     # Payment information
+    # TODO: Decouple Payment information
     account = models.ForeignKey('Account', models.PROTECT)
     amount = models.FloatField(verbose_name="Betrag")
     payment_date = models.DateField(verbose_name="regulärer Abbuchungstag", null=True)  # TODO: Remove null
@@ -203,3 +218,4 @@ class Contract(models.Model):
         verbose_name = "Vertrag"
         verbose_name_plural = "Verträge"
         ordering = ['name']
+
