@@ -102,6 +102,8 @@ class Account(models.Model):
 
 # TODO: Add user
 class Record(models.Model):
+    date_created = models.DateTimeField(auto_now_add=True)
+
     account = models.ForeignKey('Account', models.PROTECT)
     counter_booking = models.OneToOneField('Record', models.PROTECT, null=True, blank=True)
 

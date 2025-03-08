@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from finance.models import Record, Contract, Category, Account
+from transactions.models import Transaction
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -10,12 +11,17 @@ class AccountSerializer(serializers.ModelSerializer):
 
 
 class RecordSerializer(serializers.ModelSerializer):
+    transactions = serializers.PrimaryKeyRelatedField(queryset=Transaction.objects.all(), many=True)
+
     class Meta:
         model = Record
         fields = '__all__'
-        extra_kwargs = dict(
-            date=dict(input_formats=["%d.%m.%Y"]),
-        )
+        extra_kwargs = {
+            "date": dict(input_formats=[
+                "%d.%m.%Y",
+                "%Y-%m-%d",
+            ]),
+        }
 
 
 # TODO: Fix typo in 'cancelation'
