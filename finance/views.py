@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -11,7 +9,7 @@ from finance.serializers import RecordSerializer, ContractSerializer, CategorySe
 
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 50
-    page_size_query_param = 'page_size'
+    page_size_query_param = 'pageSize'
     max_page_size = 1000
 
 
@@ -29,6 +27,21 @@ class RecordViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = StandardResultsSetPagination
 
+    ALLOWED_LOOKUPS = (
+        "id",
+        "account",
+        "date__gte",
+        "date__gt",
+        "date__lte",
+        "date__lt",
+        "date",
+        "category",
+        "contract",
+        "subject",
+        "subject__icontains",
+    )
+
+    # TODO: Required?
     def get_serializer(self, *args, **kwargs):
         if isinstance(self.request.data, list):
             kwargs.update(many=True)
@@ -46,32 +59,21 @@ class RecordViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        params = dict()
 
-        date_start = self.request.query_params.get("date_start")
-        date_end = self.request.query_params.get("date_end")
-        category = self.request.query_params.get("category")
-        contract = self.request.query_params.get("contract")
-        subject = self.request.query_params.get("subject")
-        account = self.request.query_params.get("account")
+        # Sorting
+        order_by = self.request.query_params.getlist("sortBy")
+        qs = qs.order_by(*order_by)
 
-        if date_start:
-            params.update(date__gte=datetime.strptime(date_start, "%Y-%m-%d"))
-        if date_end:
-            params.update(date__lte=datetime.strptime(date_end, "%Y-%m-%d"))
-        if category:
-            category = Category.objects.get(pk=category)
-            params.update(category__in=category.subtree())
-        if contract:
-            params.update(contract=contract)
-        if subject:
-            params.update(subject__icontains=subject)
-        if account:
-            params.update(account=account)
-        if params:
-            qs = qs.filter(**params)
+        # Filtering
+        for lookup in self.ALLOWED_LOOKUPS:
+            value = self.request.query_params.get(lookup)
+            if value:
+                qs = qs.filter(**{lookup: value})
+                print(qs.count())
+
         return qs
 
+    # TODO: Required?
     def paginate_queryset(self, queryset):
         if self.paginator and self.paginator.page_query_param not in self.request.query_params:
             return None

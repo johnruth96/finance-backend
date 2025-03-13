@@ -109,7 +109,7 @@ STATIC_URL = "/static/"
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'mozilla_django_oidc.contrib.drf.OIDCAuthentication',
-    ]
+    ],
 }
 
 # OIDC configuration
