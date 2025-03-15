@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
-from finance.models import Record
+from finance.serializers import RecordSerializer
 from transactions.models import Transaction
 
 
 class TransactionSerializer(serializers.ModelSerializer):
     account = serializers.StringRelatedField()
-    records = serializers.PrimaryKeyRelatedField(many=True, queryset=Record.objects.all())
+    records = RecordSerializer(many=True)
 
     class Meta:
         model = Transaction
