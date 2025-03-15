@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
@@ -35,10 +36,20 @@ class RecordViewSet(viewsets.ModelViewSet):
         "date__lte",
         "date__lt",
         "date",
+        "date_created__gte",
+        "date_created__gt",
+        "date_created__lte",
+        "date_created__lt",
+        "date_created",
         "category",
         "contract",
         "subject",
         "subject__icontains",
+        "transaction_count",
+        "transaction_count__gte",
+        "transaction_count__gt",
+        "transaction_count__lte",
+        "transaction_count__lt",
     )
 
     @action(detail=False)
@@ -59,11 +70,11 @@ class RecordViewSet(viewsets.ModelViewSet):
         qs = qs.order_by(*order_by)
 
         # Filtering
+        qs = qs.annotate(transaction_count=Count('transactions'))
         for lookup in self.ALLOWED_LOOKUPS:
             value = self.request.query_params.get(lookup)
             if value:
                 qs = qs.filter(**{lookup: value})
-                print(qs.count())
 
         return qs
 
