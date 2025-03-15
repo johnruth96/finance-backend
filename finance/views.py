@@ -41,12 +41,6 @@ class RecordViewSet(viewsets.ModelViewSet):
         "subject__icontains",
     )
 
-    # TODO: Required?
-    def get_serializer(self, *args, **kwargs):
-        if isinstance(self.request.data, list):
-            kwargs.update(many=True)
-        return super().get_serializer(*args, **kwargs)
-
     @action(detail=False)
     def subjects(self, request):
         query = request.query_params.get("query", "")
@@ -72,12 +66,6 @@ class RecordViewSet(viewsets.ModelViewSet):
                 print(qs.count())
 
         return qs
-
-    # TODO: Required?
-    def paginate_queryset(self, queryset):
-        if self.paginator and self.paginator.page_query_param not in self.request.query_params:
-            return None
-        return super().paginate_queryset(queryset)
 
 
 class ContractViewSet(viewsets.ModelViewSet):
