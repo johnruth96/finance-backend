@@ -45,6 +45,8 @@ class RecordViewSet(viewsets.ModelViewSet):
         "contract",
         "subject",
         "subject__icontains",
+        "subject__istartswith",
+        "subject__iendswith",
         "transaction_count",
         "transaction_count__gte",
         "transaction_count__gt",
@@ -75,6 +77,11 @@ class RecordViewSet(viewsets.ModelViewSet):
             value = self.request.query_params.get(lookup)
             if value:
                 qs = qs.filter(**{lookup: value})
+
+        # Quick filter
+        query = self.request.query_params.get("q", "")
+        if query:
+            qs = qs.filter(subject__icontains=query)
 
         return qs
 
