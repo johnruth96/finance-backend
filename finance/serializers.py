@@ -11,7 +11,7 @@ class AccountSerializer(serializers.ModelSerializer):
 
 
 class RecordSerializer(serializers.ModelSerializer):
-    transactions = serializers.PrimaryKeyRelatedField(queryset=Transaction.objects.all(), many=True)
+    transactions = serializers.PrimaryKeyRelatedField(queryset=Transaction.objects.all(), many=True, required=False)
 
     class Meta:
         model = Record
