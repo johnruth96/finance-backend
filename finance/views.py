@@ -1,11 +1,13 @@
 from django.db.models import Count
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from finance.models import Record, Contract, Category, Account
 from finance.serializers import RecordSerializer, ContractSerializer, CategorySerializer, AccountSerializer
+from transactions.models import Transaction
+from transactions.serializers import TransactionSerializer
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -53,6 +55,41 @@ class RecordViewSet(viewsets.ModelViewSet):
         "transaction_count__lte",
         "transaction_count__lt",
     )
+
+    @action(detail=True)
+    def transactions(self, request, pk=None):
+        record = self.get_object()
+        transactions = record.transactions.all()
+        serializer = TransactionSerializer(transactions, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['POST'], url_path=r'transactions/(?P<transaction_id>\d+)')
+    def link_transaction(self, request, pk=None, transaction_id=None):
+        record = self.get_object()
+
+        try:
+            transaction = Transaction.objects.get(pk=transaction_id)
+            record.transactions.add(transaction)
+            return Response(status=status.HTTP_201_CREATED)
+        except Transaction.DoesNotExist:
+            return Response(
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+    @link_transaction.mapping.delete
+    def unlink_transaction(self, request, pk=None, transaction_id=None):
+        record = self.get_object()
+
+        try:
+            transaction = Transaction.objects.get(pk=transaction_id)
+
+            if transaction in record.transactions.all():
+                record.transactions.remove(transaction)
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+        except Transaction.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=False)
     def subjects(self, request):

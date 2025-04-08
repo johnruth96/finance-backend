@@ -110,6 +110,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'mozilla_django_oidc.contrib.drf.OIDCAuthentication',
     ],
+    'COERCE_DECIMAL_TO_STRING': False,
 }
 
 # OIDC configuration
