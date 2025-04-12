@@ -108,7 +108,7 @@ class Record(models.Model):
     counter_booking = models.OneToOneField('Record', models.PROTECT, null=True, blank=True)
 
     subject = models.CharField(verbose_name="Name", max_length=255)
-    category = models.ForeignKey('Category', models.PROTECT, verbose_name="Kategorie")
+    category = models.ForeignKey('Category', models.PROTECT, verbose_name="Kategorie", null=True, blank=True)
     date = models.DateField(verbose_name="Datum")
     amount = models.FloatField(verbose_name="Betrag")
 
