@@ -58,10 +58,13 @@ def import_csv(reader: csv.reader):
             ))
 
     with transaction.atomic():
-        account, _ = Account.objects.get_or_create(
-            iban=iban,
-            name=name,
-        )
+        try:
+            account = Account.objects.get(iban=iban)
+        except Account.DoesNotExist:
+            account = Account.objects.create(
+                iban=iban,
+                name=name,
+            )
 
         num_created = 0
         for transaction_dict in transactions:
@@ -139,7 +142,6 @@ class TransactionViewSet(viewsets.ModelViewSet):
         tr_b.save()
 
         return Response(status=200)
-
 
     @action(methods=["POST"], detail=True)
     def records(self, request, pk=None):
