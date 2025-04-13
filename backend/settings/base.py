@@ -120,3 +120,29 @@ OIDC_RP_CLIENT_SECRET = os.environ.get("OIDC_CLIENT_SECRET")
 OIDC_OP_AUTHORIZATION_ENDPOINT = f"{os.environ.get('OIDC_AUTHORITY')}/protocol/openid-connect/auth"
 OIDC_OP_TOKEN_ENDPOINT = f"{os.environ.get('OIDC_AUTHORITY')}/protocol/openid-connect/token"
 OIDC_OP_USER_ENDPOINT = f"{os.environ.get('OIDC_AUTHORITY')}/protocol/openid-connect/userinfo"
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        "django.server": {
+            "()": "django.utils.log.ServerFormatter",
+            "format": "[{server_time}] {message}",
+            "style": "{",
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'django.server',
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        }
+    },
+}

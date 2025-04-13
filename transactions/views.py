@@ -57,6 +57,8 @@ def import_csv(reader: csv.reader):
                 currency=currency,
             ))
 
+    raise ValueError
+
     with transaction.atomic():
         try:
             account = Account.objects.get(iban=iban)
