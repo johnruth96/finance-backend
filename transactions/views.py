@@ -1,6 +1,6 @@
 import csv
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from io import StringIO
 from urllib.request import urlopen
 
@@ -48,8 +48,8 @@ def import_csv(reader: csv.reader):
             currency = row[8] if contains_saldo else row[6]
 
             transactions.append(dict(
-                booking_date=datetime.strptime(row[0], "%d.%m.%Y"),
-                value_date=datetime.strptime(row[1], "%d.%m.%Y"),
+                booking_date=datetime.strptime(row[0], "%d.%m.%Y").replace(tzinfo=timezone.utc),
+                value_date=datetime.strptime(row[1], "%d.%m.%Y").replace(tzinfo=timezone.utc),
                 creditor=row[2],
                 transaction_type=row[3],
                 purpose=row[4],
