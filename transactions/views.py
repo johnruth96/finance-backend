@@ -11,7 +11,9 @@ from rest_framework.exceptions import ValidationError, APIException
 from rest_framework.response import Response
 
 from finance.models import Record
+from transactions.filters import TransactionFilter
 from transactions.models import Transaction, Account
+from transactions.pagination import StandardResultsSetPagination
 from transactions.serializers import TransactionSerializer
 
 logger = logging.getLogger()
@@ -82,6 +84,8 @@ def import_csv(reader: csv.reader):
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
+    pagination_class = StandardResultsSetPagination
+    filterset_class = TransactionFilter
 
     @action(methods=["POST"], detail=True)
     def hide(self, request, pk=None):

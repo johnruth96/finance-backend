@@ -20,6 +20,7 @@ THIRD_PARTY_APPS = [
     'corsheaders',
     'mozilla_django_oidc',
     'rest_framework',
+    'django_filters',
 ]
 
 LOCAL_APPS = [
@@ -111,6 +112,9 @@ REST_FRAMEWORK = {
         'mozilla_django_oidc.contrib.drf.OIDCAuthentication',
     ],
     'COERCE_DECIMAL_TO_STRING': False,
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 # OIDC configuration

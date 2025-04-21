@@ -1,9 +1,9 @@
-from django.db.models import Count
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
+from finance.filters import RecordFilter
 from finance.models import Record, Contract, Category, Account
 from finance.serializers import RecordSerializer, ContractSerializer, CategorySerializer, AccountSerializer
 from transactions.models import Transaction
@@ -29,32 +29,7 @@ class RecordViewSet(viewsets.ModelViewSet):
     queryset = Record.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = StandardResultsSetPagination
-
-    ALLOWED_LOOKUPS = (
-        "id",
-        "account",
-        "date__gte",
-        "date__gt",
-        "date__lte",
-        "date__lt",
-        "date",
-        "date_created__gte",
-        "date_created__gt",
-        "date_created__lte",
-        "date_created__lt",
-        "date_created",
-        "category",
-        "contract",
-        "subject",
-        "subject__icontains",
-        "subject__istartswith",
-        "subject__iendswith",
-        "transaction_count",
-        "transaction_count__gte",
-        "transaction_count__gt",
-        "transaction_count__lte",
-        "transaction_count__lt",
-    )
+    filterset_class = RecordFilter
 
     @action(detail=True)
     def transactions(self, request, pk=None):
@@ -107,18 +82,6 @@ class RecordViewSet(viewsets.ModelViewSet):
         # Sorting
         order_by = self.request.query_params.getlist("sortBy")
         qs = qs.order_by(*order_by)
-
-        # Filtering
-        qs = qs.annotate(transaction_count=Count('transactions'))
-        for lookup in self.ALLOWED_LOOKUPS:
-            value = self.request.query_params.get(lookup)
-            if value:
-                qs = qs.filter(**{lookup: value})
-
-        # Quick filter
-        query = self.request.query_params.get("q", "")
-        if query:
-            qs = qs.filter(subject__icontains=query)
 
         return qs
 
