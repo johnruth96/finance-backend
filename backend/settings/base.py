@@ -1,4 +1,5 @@
 import os
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -150,3 +151,9 @@ LOGGING = {
         }
     },
 }
+
+# Transaction Transformer
+TRANSFORMER_PATH = os.environ.get("TRANSFORMER_PATH", "")
+sys.path.append(os.path.join(TRANSFORMER_PATH))
+
+TRANSACTION_TRANSFORMER = "transformer.TransactionTransformer"

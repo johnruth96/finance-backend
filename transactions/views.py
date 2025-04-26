@@ -4,7 +4,9 @@ from datetime import datetime, timezone
 from io import StringIO
 from urllib.request import urlopen
 
+from django.conf import settings
 from django.db import transaction
+from django.utils.module_loading import import_string
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError, APIException
@@ -15,6 +17,7 @@ from transactions.filters import TransactionFilter
 from transactions.models import Transaction, Account
 from transactions.pagination import StandardResultsSetPagination
 from transactions.serializers import TransactionSerializer
+from transactions.transform import Transformer
 
 logger = logging.getLogger()
 
@@ -86,6 +89,32 @@ class TransactionViewSet(viewsets.ModelViewSet):
     serializer_class = TransactionSerializer
     pagination_class = StandardResultsSetPagination
     filterset_class = TransactionFilter
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        # Sorting
+        order_by = self.request.query_params.getlist("sortBy")
+        qs = qs.order_by(*order_by)
+
+        return qs
+
+    @action(methods=["POST"], detail=True, url_path="import")
+    def import_transaction(self, request, pk=None):
+        transaction = self.get_object()
+
+        transformer_class = import_string(settings.TRANSACTION_TRANSFORMER)
+        transformer: Transformer = transformer_class()
+
+        record = transformer.transform(self.get_object())
+
+        if record is None:
+            raise ValidationError("Transaction could not be imported.")
+
+        record.save()
+        record.transactions.add(transaction)
+
+        return Response(data=TransactionSerializer(transaction).data)
 
     @action(methods=["POST"], detail=True)
     def hide(self, request, pk=None):
