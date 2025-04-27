@@ -34,4 +34,5 @@ class TransactionFilter(filters.FilterSet):
             "purpose": ["exact", "icontains", "istartswith", "iendswith"],
             "amount": ["exact", "gte", "lte", "gt", "lt"],
             "is_highlighted": ["exact"],
+            "is_ignored": ["exact"],
         }
