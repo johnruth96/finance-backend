@@ -37,4 +37,4 @@ class Transaction(models.Model):
         return self.records.exists() and not self.is_ignored
 
     class Meta:
-        ordering = ('booking_date',)
+        ordering = ('booking_date', 'creditor', 'purpose')

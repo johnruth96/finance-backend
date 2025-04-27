@@ -157,7 +157,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     @action(methods=["POST"], detail=False)
     def counter_booking(self, request, pk=None):
         if len(request.data) != 2:
-            raise ValidationError()
+            raise ValidationError("You can only choose two transactions.")
 
         pk_a = request.data[0]
         pk_b = request.data[1]
@@ -166,7 +166,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
         tr_b = Transaction.objects.get(pk=pk_b)
 
         if tr_a.account != tr_b.account:
-            raise ValidationError()
+            raise ValidationError("Accounts do not match.")
 
         tr_a.is_counter_to = tr_b
         tr_b.is_counter_to = tr_a
