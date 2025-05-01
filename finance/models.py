@@ -1,5 +1,4 @@
-import calendar
-from datetime import datetime, date
+from datetime import datetime
 
 from colorfield.fields import ColorField
 from dateutil.relativedelta import relativedelta
@@ -144,34 +143,34 @@ class Contract(models.Model):
     payment_cycle = models.CharField(verbose_name="Turnus", choices=get_payment_cycle_choices(), max_length=4)
     category = models.ForeignKey('Category', models.PROTECT, verbose_name="Kategorie")
 
-    def get_next_payment_date(self):
-        today = datetime.now()
-        months = get_cycle_months(self.payment_cycle)
-        match_month = (today.month - self.payment_date.month) % months == 0
-        match_day = today.day >= self.payment_date.day
-
-        if not match_month or not match_day:
-            return None
-
-        try:
-            # Get payment date in current month
-            return date(today.year, today.month, self.payment_date.day)
-        except ValueError:
-            # If the payment day is after the months end (e.g., February has only 28 days and payment day is 31)
-            last_day = calendar.monthrange(today.year, today.month)[1]
-            return date(today.year, today.month, last_day)
+    # def get_next_payment_date(self):
+    #     today = datetime.now()
+    #     months = get_cycle_months(self.payment_cycle)
+    #     match_month = (today.month - self.payment_date.month) % months == 0
+    #     match_day = today.day >= self.payment_date.day
+    #
+    #     if not match_month or not match_day:
+    #         return None
+    #
+    #     try:
+    #         # Get payment date in current month
+    #         return date(today.year, today.month, self.payment_date.day)
+    #     except ValueError:
+    #         # If the payment day is after the months end (e.g., February has only 28 days and payment day is 31)
+    #         last_day = calendar.monthrange(today.year, today.month)[1]
+    #         return date(today.year, today.month, last_day)
 
     def get_amount_yearly(self):
         months = get_cycle_months(self.payment_cycle)
         return self.amount * (12 / months)
 
-    def is_cancelation_shortly(self):
-        next_cancelation = self.get_next_cancelation_date()
-
-        if next_cancelation is None:
-            return False
-
-        return next_cancelation < datetime.now().date() + relativedelta(months=1)
+    # def is_cancelation_shortly(self):
+    #     next_cancelation = self.get_next_cancelation_date()
+    #
+    #     if next_cancelation is None:
+    #         return False
+    #
+    #     return next_cancelation < datetime.now().date() + relativedelta(months=1)
 
     def get_next_extension_date(self):
         if not self.minimum_duration or not self.renewal_duration:

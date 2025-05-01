@@ -27,11 +27,9 @@ class RecordSerializer(serializers.ModelSerializer):
 # TODO: Fix typo in 'cancelation'
 class ContractSerializer(serializers.ModelSerializer):
     # Payment information
-    next_payment_date = serializers.DateField(source='get_next_payment_date', read_only=True)
     amount_per_year = serializers.FloatField(source='get_amount_yearly', read_only=True)
 
     # Contract information
-    is_cancelation_shortly = serializers.BooleanField(read_only=True)
     next_extension_date = serializers.DateField(source='get_next_extension_date', read_only=True)
     next_cancelation_date = serializers.DateField(source='get_next_cancelation_date', read_only=True)
 
