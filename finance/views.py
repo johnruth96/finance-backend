@@ -1,5 +1,8 @@
+from django.db.models import Sum, F
+from django.db.models.functions import Coalesce
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
@@ -84,6 +87,46 @@ class RecordViewSet(viewsets.ModelViewSet):
         qs = qs.order_by(*order_by)
 
         return qs
+
+    @action(detail=False)
+    def aggregate(self, request):
+        data = request.query_params.copy()
+
+        try:
+            group = data.pop("group", [])[0]
+        except IndexError:
+            raise ValidationError("Group attribute missing.")
+
+        try:
+            aggregate = data.pop("aggregate", [])[0]
+        except IndexError:
+            raise ValidationError("Aggregation function missing.")
+
+        if aggregate != "sum":
+            raise ValidationError(f"Aggregation function '{aggregate}' not supported.")
+
+        qs = Record.objects.all()
+        qs = qs.annotate(major_category_id=Coalesce(F('category__parent'), "category"))
+        qs = qs.annotate(major_category_name=Coalesce(F('category__parent__name'), "category__name"))
+
+        for key, value in data.lists():
+            if not key.endswith("__in"):
+                value = value[0]
+
+            qs = qs.filter(**{key: value})
+
+        qs = qs.values(group)
+        qs = qs.annotate(sum=Sum("amount"))  # TODO: Parameterize
+        qs = qs.order_by("sum")  # TODO: Parameterize
+
+        results = list(
+            dict(
+                value=item["sum"],  # TODO: Parameterize
+                label=str(item[group]),
+            ) for item in qs
+        )
+
+        return Response(data=dict(results=results))
 
 
 class ContractViewSet(viewsets.ModelViewSet):
