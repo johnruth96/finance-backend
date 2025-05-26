@@ -1,7 +1,22 @@
+from django.db import models
 from django.db.models import Count
+from django.db.models.functions import Concat
 from django_filters import rest_framework as filters
 
 from transactions.models import Transaction
+
+
+class QuickSearchFilter(filters.CharFilter):
+    FIELD_NAME = "q"
+
+    def __init__(self, **kwargs):
+        super().__init__(field_name=self.FIELD_NAME, **kwargs)
+
+    def filter(self, qs, value):
+        qs = qs.annotate(
+            **{self.FIELD_NAME: Concat('creditor', 'transaction_type', "purpose", output_field=models.CharField())}
+        )
+        return super().filter(qs, value)
 
 
 class RecordCountFilter(filters.NumberFilter):
@@ -15,6 +30,8 @@ class RecordCountFilter(filters.NumberFilter):
 
 
 class TransactionFilter(filters.FilterSet):
+    q = QuickSearchFilter(lookup_expr="icontains")
+
     account__istartswith = filters.CharFilter(field_name="account__iban", lookup_expr="istartswith")
 
     is_duplicate = filters.BooleanFilter(field_name="is_counter_to", lookup_expr="isnull", exclude=True)
