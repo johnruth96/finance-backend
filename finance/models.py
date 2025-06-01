@@ -111,6 +111,7 @@ class Record(models.Model):
     date = models.DateField(verbose_name="Datum")
     amount = models.FloatField(verbose_name="Betrag")
 
+    tags = models.ManyToManyField('Category', verbose_name="Tags", blank=True, related_name="records")
     contract = models.ForeignKey('Contract', models.PROTECT, verbose_name="Vertrag", null=True, blank=True)
 
     class Meta:
