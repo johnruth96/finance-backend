@@ -12,20 +12,6 @@ class AccountSerializer(serializers.ModelSerializer):
 
 class RecordSerializer(serializers.ModelSerializer):
     transactions = serializers.PrimaryKeyRelatedField(queryset=Transaction.objects.all(), many=True, required=False)
-    # TODO: GL-1 Add tags
-    tags = serializers.SerializerMethodField(read_only=True)
-
-    def __init__(self, *args, **kwargs):
-        data = kwargs.get("data")
-
-        # TODO: GL-1 Workaround: Map "tags" field to "category" if only one tag is provided
-        if isinstance(data, dict) and "category" not in data and len(data.get("tags", [])) == 1:
-            data["category"] = data["tags"][0]
-
-        super().__init__(*args, **kwargs)
-
-    def get_tags(self, instance):
-        return [instance.category.pk] if instance.category else []
 
     class Meta:
         model = Record
