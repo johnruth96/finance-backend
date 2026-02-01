@@ -114,7 +114,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
         record.transactions.add(t)
 
-        return Response(data=TransactionSerializer(transaction).data)
+        return Response(data=TransactionSerializer(t).data)
 
     @action(methods=["POST"], detail=True)
     def hide(self, request, pk=None):
