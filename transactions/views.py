@@ -108,7 +108,8 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
         try:
             record = transformer.transform(self.get_object())
-        except TransformError:
+        except TransformError as err:
+            logger.exception(err)
             raise ValidationError("Transaction could not be imported.")
 
         record.transactions.add(t)
