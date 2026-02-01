@@ -4,7 +4,7 @@ from finance.models import Record, Category, Contract, Account
 
 
 class RecordAdmin(admin.ModelAdmin):
-    list_display = ('subject', 'date', 'amount', 'account', 'category', 'contract')
+    list_display = ('subject', 'date', 'category', 'amount', 'account', 'contract')
 
 
 class CategoryAdmin(admin.ModelAdmin):

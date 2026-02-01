@@ -1,9 +1,17 @@
-from typing import Optional
+import abc
 
 from finance.models import Record
 from transactions.models import Transaction
 
 
-class Transformer:
-    def transform(self, transaction: Transaction) -> Optional[Record]:
-        return None
+class TransformError(ValueError):
+    pass
+
+
+class Transformer(abc.ABC):
+    @abc.abstractmethod
+    def transform(self, transaction: Transaction) -> Record:
+        """
+        :raises TransformError: if Record could no be created
+        """
+        pass

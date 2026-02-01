@@ -25,13 +25,14 @@ class RecordFilter(filters.FilterSet):
 
     class Meta:
         model = Record
+        # TODO: FIN-1: Add filter "contains" for category
+        # TODO: FIN-1: Add filters for tags
         fields = {
             "id": ["exact"],
             "account": ["exact"],
             "date": ["exact", "gte", "lte", "gt", "lt"],
             "date_created": ["exact", "gte", "lte", "gt", "lt"],
             "amount": ["exact", "gte", "lte", "gt", "lt"],
-            "category": ["exact"],
             "contract": ["exact"],
             "subject": ["exact", "icontains", "istartswith", "iendswith"],
         }

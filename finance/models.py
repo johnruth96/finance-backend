@@ -107,7 +107,7 @@ class Record(models.Model):
     counter_booking = models.OneToOneField('Record', models.PROTECT, null=True, blank=True)
 
     subject = models.CharField(verbose_name="Name", max_length=255)
-    category = models.ForeignKey('Category', models.PROTECT, verbose_name="Kategorie", null=True, blank=True)
+    category = models.ForeignKey('Category', models.PROTECT, verbose_name="Hauptkategorie", null=True, blank=True)
     date = models.DateField(verbose_name="Datum")
     amount = models.FloatField(verbose_name="Betrag")
 
@@ -115,7 +115,7 @@ class Record(models.Model):
     contract = models.ForeignKey('Contract', models.PROTECT, verbose_name="Vertrag", null=True, blank=True)
 
     class Meta:
-        ordering = ['-date', 'category']
+        ordering = ['-date', 'category', 'subject']
         verbose_name = "Buchung"
         verbose_name_plural = "Buchungen"
 

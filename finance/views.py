@@ -73,8 +73,10 @@ class RecordViewSet(viewsets.ModelViewSet):
     def subjects(self, request):
         query = request.query_params.get("query", "")
         qs = Record.objects.all()
+
         if query != "":
             qs = qs.filter(subject__startswith=query)
+
         qs = qs.values_list("subject", "category", "contract").distinct().order_by()
         response = Response(data=qs)
         return response
@@ -106,8 +108,7 @@ class RecordViewSet(viewsets.ModelViewSet):
             raise ValidationError(f"Aggregation function '{aggregate}' not supported.")
 
         qs = Record.objects.all()
-        qs = qs.annotate(major_category_id=Coalesce(F('category__parent'), "category"))
-        qs = qs.annotate(major_category_name=Coalesce(F('category__parent__name'), "category__name"))
+        qs = qs.annotate(root_category=Coalesce(F('category__parent__name'), "category__name"))
 
         for key, value in data.lists():
             if not key.endswith("__in"):

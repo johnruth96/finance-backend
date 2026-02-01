@@ -17,7 +17,7 @@ from transactions.filters import TransactionFilter
 from transactions.models import Transaction, Account
 from transactions.pagination import StandardResultsSetPagination
 from transactions.serializers import TransactionSerializer
-from transactions.transform import Transformer
+from transactions.transform import Transformer, TransformError
 
 logger = logging.getLogger()
 
@@ -101,18 +101,17 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
     @action(methods=["POST"], detail=True, url_path="import")
     def import_transaction(self, request, pk=None):
-        transaction = self.get_object()
+        t: Transaction = self.get_object()
 
         transformer_class = import_string(settings.TRANSACTION_TRANSFORMER)
         transformer: Transformer = transformer_class()
 
-        record = transformer.transform(self.get_object())
-
-        if record is None:
+        try:
+            record = transformer.transform(self.get_object())
+        except TransformError:
             raise ValidationError("Transaction could not be imported.")
 
-        record.save()
-        record.transactions.add(transaction)
+        record.transactions.add(t)
 
         return Response(data=TransactionSerializer(transaction).data)
 
