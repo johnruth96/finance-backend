@@ -33,6 +33,7 @@ class RecordFilter(filters.FilterSet):
             "date": ["exact", "gte", "lte", "gt", "lt"],
             "date_created": ["exact", "gte", "lte", "gt", "lt"],
             "amount": ["exact", "gte", "lte", "gt", "lt"],
+            "category": ["exact"],
             "contract": ["exact"],
             "subject": ["exact", "icontains", "istartswith", "iendswith"],
         }
